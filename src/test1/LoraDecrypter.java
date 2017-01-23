@@ -6,6 +6,8 @@ import java.util.Base64;
 import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.params.KeyParameter;
 
+import test2.TestDecrypter;
+
 /** Decrypt Lora payload from received data.
  * 
  * Not thread safe. Use one instance per thread.
@@ -25,6 +27,19 @@ public class LoraDecrypter
 		aesEngine.init(true, this.key);
 	}
 
+	public static String getAddressDevice(byte[] addr)
+	{
+		String addressDevice = "";
+		for (int i = addr.length - 1; i >= 0; i--)
+		{
+			byte[] tab = { addr[i] };
+			addressDevice += TestDecrypter.convertToHexa(tab);
+			if (i > 0)
+				addressDevice += ":";
+		}
+		return addressDevice;
+	}
+
 	public byte[] decrypt(String base64encodedData)
 	{
 		// Decode message
@@ -32,17 +47,22 @@ public class LoraDecrypter
 		byte[] decode = Base64.getDecoder().decode(base64encodedData);
 		System.out.println("step1");
 		// Compute sequence number
-		int sequence = (decode[7] << 8 | decode[6]);
+		System.out.println(decode[7]);
+		int sequence = 0;
+		System.out.println(String.format("%02X", sequence));
+		sequence = (decode[7] * (int) Math.pow(2, 8) + decode[6]);
+		System.out.println(String.format("%02X", sequence));
 		// Get the adress
 		byte[] addrbytes = Arrays.copyOfRange(decode, 1, 5);
 		int address = java.nio.ByteBuffer.wrap(addrbytes).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
 
+		//System.out.println("Adresse du device : " + addrbytes + " \nnumeroSequence : " + sequence);
 		// Move to offset of data
 		byte[] payload = new byte[decode.length - 9];
 		System.arraycopy(decode, 9, payload, 0, decode.length - 9);
 		// decrypt message
 		byte[] decrypted = new byte[payload.length];
-		decrypthelper(payload, 16, address, 0, sequence, decrypted);
+		decrypthelper(payload, 16, address, 0, 95, decrypted);
 		return decrypted;
 	}
 

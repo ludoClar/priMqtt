@@ -52,27 +52,34 @@ public class LoraDecrypter
 			message[i] = String.format("%02X", b);
 			i++;
 		}
+		System.out.println("Nb bytes " + message.length);
 		for (i = 0; i < message.length; i++)
 			System.out.print(message[i] + " ");
-		System.out.println("après base 64 : " + hexaRes);
-		int sequence = Integer.parseInt(message[6], 16);
+		System.out.println();
+		//System.out.println("après base 64 : " + hexaRes);
+		int sequence = Integer.parseInt(message[7] + message[6], 16);
 		System.out.println("sequence : " + sequence);
 		//int sequence = (decode[7] << 8 | decode[6]);
 		// Get the adress
 		byte[] addrbytes = Arrays.copyOfRange(decode, 1, 5);
 
 		String addressReverse = TestDecrypter.convertToHexa(addrbytes);
-
 		System.out.println("Adresse du device : " + getAddressDevice(addrbytes) + " \nnumeroSequence : " + sequence);
 
 		int address = java.nio.ByteBuffer.wrap(addrbytes).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
 		// Move to offset of data
+		System.out.println("Taille:" + (decode.length - 9));
 		byte[] payload = new byte[decode.length - 9];
 		System.arraycopy(decode, 9, payload, 0, decode.length - 9);
+
+		/* i = 0; System.out.print("Payload : "); for (byte b : payload) {
+		 * hexaRes.append(String.format("%02X ", b)); message[i] =
+		 * String.format("%02X", b); System.out.print(message[i] + " "); i++; }
+		 * System.out.println(); */
 		// decrypt message
 		byte[] decrypted = new byte[payload.length];
 
-		return decrypthelper(payload, 16, address, 0, sequence, decrypted);
+		return decrypthelper(payload, 16, address, 0, 0x95, decrypted);
 		//return decrypted;
 	}
 

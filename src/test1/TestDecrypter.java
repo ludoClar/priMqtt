@@ -31,7 +31,7 @@ public class TestDecrypter
 
 	public static void main(String[] args) throws Exception
 	{
-		String[] data = { "QM+JzAEAAgACpSvq0ctZNSVmNLdv7xaF4AZawjg=" };
+		String[] data = { "QM+JzAEAlQACHdWSp8h8cijfzWVX2Ky5tsHzOSI=" };
 		setUp();
 		for (int i = 0; i < data.length; i++)
 		{
